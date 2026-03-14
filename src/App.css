@@ -47,7 +47,7 @@
 
 .app-main {
   display: grid;
-  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
   gap: 28px;
 }
 
@@ -102,6 +102,7 @@
   color: var(--text);
 }
 
+/* Form */
 .session-form {
   display: flex;
   flex-direction: column;
@@ -114,6 +115,10 @@
   gap: 16px;
 }
 
+.form-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 label {
   display: flex;
   flex-direction: column;
@@ -121,17 +126,25 @@ label {
   gap: 8px;
 }
 
-input {
+input,
+select {
   background: rgba(12, 14, 28, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 10px 14px;
   color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: 2px solid rgba(247, 183, 49, 0.6);
   border-color: transparent;
+}
+
+select option {
+  background: #111327;
 }
 
 button {
@@ -140,6 +153,7 @@ button {
   padding: 10px 16px;
   cursor: pointer;
   font-weight: 600;
+  font-family: inherit;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -159,9 +173,10 @@ button.ghost {
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* Stats */
 .stats-grid {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .stat-card {
@@ -170,17 +185,26 @@ button.ghost {
   background: var(--panel-strong);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .stat-card h2 {
   margin: 0;
-  font-size: 28px;
+  font-size: 26px;
 }
 
+.stat-value.income {
+  color: var(--success);
+}
+
+.stat-value.expense {
+  color: #ff6b6b;
+}
+
+/* Transaction list */
 .session-list {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .session-card {
@@ -194,19 +218,22 @@ button.ghost {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.session-card.done {
-  opacity: 0.65;
-  border-color: rgba(46, 213, 115, 0.35);
+.transaction-card.income-card {
+  border-color: rgba(46, 213, 115, 0.2);
+}
+
+.transaction-card.expense-card {
+  border-color: rgba(255, 107, 107, 0.15);
 }
 
 .session-card h3 {
   margin: 6px 0 4px;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .session-subject {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--accent-2);
@@ -222,11 +249,8 @@ button.ghost {
 .session-actions {
   display: grid;
   gap: 8px;
-}
-
-.session-actions button {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--text);
+  align-items: center;
+  text-align: right;
 }
 
 .session-actions .danger {
@@ -234,6 +258,21 @@ button.ghost {
   color: #ffd4d4;
 }
 
+.tx-amount {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tx-income {
+  color: var(--success);
+}
+
+.tx-expense {
+  color: #ff6b6b;
+}
+
+/* Panel footer */
 .panel-footer {
   display: flex;
   align-items: center;
@@ -241,6 +280,7 @@ button.ghost {
   margin-top: 16px;
 }
 
+/* Empty state */
 .empty-state {
   padding: 40px 24px;
   text-align: center;
@@ -248,6 +288,58 @@ button.ghost {
   border: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
+.empty-state h3 {
+  margin: 0 0 8px;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Category breakdown */
+.category-breakdown {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.breakdown-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.breakdown-bar-bg {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.breakdown-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #ff8f1f);
+  transition: width 0.4s ease;
+}
+
+/* Update banner */
 .update-banner {
   display: flex;
   align-items: center;
@@ -275,6 +367,7 @@ button.ghost {
   opacity: 0.75;
 }
 
+/* Responsive */
 @media (max-width: 980px) {
   .app-main {
     grid-template-columns: 1fr;
@@ -290,7 +383,8 @@ button.ghost {
 }
 
 @media (max-width: 640px) {
-  .form-row {
+  .form-row,
+  .form-row-3 {
     grid-template-columns: 1fr;
   }
 

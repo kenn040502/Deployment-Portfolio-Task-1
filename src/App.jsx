@@ -1,76 +1,47 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
 import Header from './components/Header.jsx';
-import SessionForm from './components/SessionForm.jsx';
-import SessionList from './components/SessionList.jsx';
-import Stats from './components/Stats.jsx';
+import TransactionForm from './components/TransactionForm.jsx';
+import TransactionList from './components/TransactionList.jsx';
+import SummaryStats from './components/SummaryStats.jsx';
+import CategoryBreakdown from './components/CategoryBreakdown.jsx';
 import UpdateBanner from './components/UpdateBanner.jsx';
 import './App.css';
 
-const storageKey = 'studydeck:sessions';
-
-const seedSessions = [
-  {
-    id: 'seed-1',
-    title: 'Electron build rehearsal',
-    subject: 'SWE40006',
-    minutes: 50,
-    scheduledFor: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-    status: 'planned',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'seed-2',
-    title: 'Release notes pass',
-    subject: 'Portfolio',
-    minutes: 25,
-    scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    status: 'planned',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-function initSessions() {
-  const raw = localStorage.getItem(storageKey);
-  if (!raw) return seedSessions;
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed;
-  } catch (error) {
-    console.error('Failed to parse saved sessions', error);
-  }
-  return seedSessions;
-}
+const storageKey = 'budgetdeck:transactions';
 
 function reducer(state, action) {
   switch (action.type) {
     case 'add':
       return [action.payload, ...state];
-    case 'toggle':
-      return state.map((session) =>
-        session.id === action.payload
-          ? {
-              ...session,
-              status: session.status === 'done' ? 'planned' : 'done',
-            }
-          : session
-      );
     case 'remove':
-      return state.filter((session) => session.id !== action.payload);
-    case 'clearDone':
-      return state.filter((session) => session.status !== 'done');
+      return state.filter((t) => t.id !== action.payload);
+    case 'clearAll':
+      return [];
     default:
       return state;
   }
 }
 
+function initTransactions() {
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (error) {
+    console.error('Failed to parse saved transactions', error);
+  }
+  return [];
+}
+
 export default function App() {
-  const [sessions, dispatch] = useReducer(reducer, [], initSessions);
+  const [transactions, dispatch] = useReducer(reducer, [], initTransactions);
   const [filter, setFilter] = useState('all');
   const [updateStatus, setUpdateStatus] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(sessions));
-  }, [sessions]);
+    localStorage.setItem(storageKey, JSON.stringify(transactions));
+  }, [transactions]);
 
   useEffect(() => {
     if (!window.electronAPI?.onUpdateStatus) return undefined;
@@ -82,26 +53,38 @@ export default function App() {
     };
   }, []);
 
-  const filteredSessions = useMemo(() => {
-    if (filter === 'planned') return sessions.filter((s) => s.status === 'planned');
-    if (filter === 'done') return sessions.filter((s) => s.status === 'done');
-    return sessions;
-  }, [sessions, filter]);
+  const filteredTransactions = useMemo(() => {
+    if (filter === 'income') return transactions.filter((t) => t.type === 'income');
+    if (filter === 'expense') return transactions.filter((t) => t.type === 'expense');
+    return transactions;
+  }, [transactions, filter]);
 
   const stats = useMemo(() => {
-    const totalMinutes = sessions.reduce((sum, session) => sum + session.minutes, 0);
-    const completed = sessions.filter((session) => session.status === 'done').length;
-    const upcoming = sessions.filter((session) => session.status !== 'done').length;
-    return { totalMinutes, completed, upcoming };
-  }, [sessions]);
+    const totalIncome = transactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+    const totalExpenses = transactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+    const netBalance = totalIncome - totalExpenses;
+    return { totalIncome, totalExpenses, netBalance };
+  }, [transactions]);
 
-  const handleAddSession = (payload) => {
-    dispatch({ type: 'add', payload });
-  };
+  const categoryBreakdown = useMemo(() => {
+    const map = {};
+    transactions
+      .filter((t) => t.type === 'expense')
+      .forEach((t) => {
+        map[t.category] = (map[t.category] || 0) + t.amount;
+      });
+    return Object.entries(map)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [transactions]);
 
-  const handleToggle = (id) => dispatch({ type: 'toggle', payload: id });
+  const handleAdd = (payload) => dispatch({ type: 'add', payload });
   const handleRemove = (id) => dispatch({ type: 'remove', payload: id });
-  const handleClearDone = () => dispatch({ type: 'clearDone' });
+  const handleClearAll = () => dispatch({ type: 'clearAll' });
 
   return (
     <div className="app-shell">
@@ -112,15 +95,15 @@ export default function App() {
       />
       <main className="app-main">
         <section className="panel panel-primary">
-          <Stats stats={stats} />
-          <SessionForm onAdd={handleAddSession} />
+          <SummaryStats stats={stats} />
+          <TransactionForm onAdd={handleAdd} />
         </section>
 
         <section className="panel panel-secondary">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Pipeline</p>
-              <h2>Session Queue</h2>
+              <p className="eyebrow">Ledger</p>
+              <h2>Transactions</h2>
             </div>
             <div className="filter-group">
               <button
@@ -131,32 +114,37 @@ export default function App() {
                 All
               </button>
               <button
-                className={filter === 'planned' ? 'active' : ''}
-                onClick={() => setFilter('planned')}
+                className={filter === 'income' ? 'active' : ''}
+                onClick={() => setFilter('income')}
                 type="button"
               >
-                Planned
+                Income
               </button>
               <button
-                className={filter === 'done' ? 'active' : ''}
-                onClick={() => setFilter('done')}
+                className={filter === 'expense' ? 'active' : ''}
+                onClick={() => setFilter('expense')}
                 type="button"
               >
-                Done
+                Expenses
               </button>
             </div>
           </div>
-          <SessionList
-            sessions={filteredSessions}
-            onToggle={handleToggle}
+
+          <TransactionList
+            transactions={filteredTransactions}
             onRemove={handleRemove}
           />
+
           <div className="panel-footer">
-            <button className="ghost" onClick={handleClearDone} type="button">
-              Clear completed
+            <button className="ghost" onClick={handleClearAll} type="button">
+              Clear all
             </button>
-            <span className="muted">{sessions.length} total sessions</span>
+            <span className="muted">{transactions.length} total transactions</span>
           </div>
+
+          {categoryBreakdown.length > 0 && (
+            <CategoryBreakdown breakdown={categoryBreakdown} total={stats.totalExpenses} />
+          )}
         </section>
       </main>
     </div>

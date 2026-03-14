@@ -1,10 +1,10 @@
 {
-  "name": "studydeck",
+  "name": "budgetdeck",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "main": "electron/main.js",
-  "description": "StudyDeck - a focused study session planner built with React and Electron.",
+  "description": "BudgetDeck - a personal budget tracker built with React and Electron.",
   "author": "Student Name",
   "scripts": {
     "dev:renderer": "vite",
@@ -40,8 +40,8 @@
     "wait-on": "^9.0.4"
   },
   "build": {
-    "appId": "com.swe40006.studydeck",
-    "productName": "StudyDeck",
+    "appId": "com.swe40006.budgetdeck",
+    "productName": "BudgetDeck",
     "directories": {
       "buildResources": "build",
       "output": "release"

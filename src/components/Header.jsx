@@ -2,8 +2,8 @@ export default function Header() {
   return (
     <header className="app-header">
       <div>
-        <p className="eyebrow">StudyDeck</p>
-        <h1>Plan focused sessions. Ship releases with calm.</h1>
+        <p className="eyebrow">BudgetDeck</p>
+        <h1>Track your income and expenses with ease.</h1>
       </div>
       <div className="header-meta">
         <div>
