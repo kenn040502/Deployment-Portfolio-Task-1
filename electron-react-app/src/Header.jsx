@@ -1,6 +1,11 @@
 import React from 'react';
+import { format } from 'date-fns';
 
 export default function Header({ onRefresh, loading, lastUpdated }) {
+  const formattedTime = lastUpdated
+    ? format(lastUpdated, 'dd MMM yyyy, HH:mm:ss')
+    : null;
+
   return (
     <div style={styles.header}>
       <div>
@@ -8,8 +13,8 @@ export default function Header({ onRefresh, loading, lastUpdated }) {
         <p style={styles.subtitle}>Live Cryptocurrency Price Tracker</p>
       </div>
       <div style={styles.right}>
-        {lastUpdated && (
-          <span style={styles.updated}>Last updated: {lastUpdated}</span>
+        {formattedTime && (
+          <span style={styles.updated}>Last updated: {formattedTime}</span>
         )}
         <button style={styles.btn} onClick={onRefresh} disabled={loading}>
           {loading ? 'Refreshing...' : 'Refresh'}

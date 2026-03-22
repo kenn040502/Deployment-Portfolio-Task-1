@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from './Header.jsx';
 import CryptoCard from './CryptoCard.jsx';
+import PriceChart from './PriceChart.jsx';
 
 const COINS = [
   { id: 'bitcoin',  symbol: 'BTC', name: 'Bitcoin' },
@@ -26,7 +27,7 @@ export default function App() {
         `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
       );
       setPrices(res.data);
-      setLastUpdated(new Date().toLocaleTimeString());
+      setLastUpdated(new Date());
     } catch (err) {
       setError('Failed to fetch prices. Check your internet connection.');
     } finally {
@@ -43,6 +44,7 @@ export default function App() {
       <Header onRefresh={fetchPrices} loading={loading} lastUpdated={lastUpdated} />
       {error && <p style={styles.error}>{error}</p>}
       <div style={styles.grid}>
+        <PriceChart coins={COINS} prices={prices} />
         {COINS.map(coin => (
           <CryptoCard
             key={coin.id}
