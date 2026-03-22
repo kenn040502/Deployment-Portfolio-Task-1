@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(mkdir -p ~/Documents/GitHub/Deployment-Portfolio-Task-1/electron-react-app/assets)"
+    ]
+  }
+}
