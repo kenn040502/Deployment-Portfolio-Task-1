@@ -10,6 +10,7 @@ const COINS = [
   { id: 'solana',   symbol: 'SOL', name: 'Solana' },
   { id: 'cardano',  symbol: 'ADA', name: 'Cardano' },
   { id: 'ripple',   symbol: 'XRP', name: 'XRP' },
+  { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin' },
 ];
 
 export default function App() {
